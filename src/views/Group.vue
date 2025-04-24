@@ -1,5 +1,8 @@
 <template>
   <main>
+    <div class="back-container">
+      <button @click="$router.back()">Back</button>
+    </div>
     <TaskForm @add-task="addTask" />
     <h5 v-if="!groupedTasks.length">Add a task to get started.</h5>
     <h5 v-else>{{ totalDone }} / {{ todos.length }} tasks completed</h5>
@@ -31,13 +34,12 @@
 import SortButton from '@/components/SortButton.vue'
 import TaskForm from '@/components/TaskForm.vue'
 import TaskList from '@/components/TaskList.vue'
-import type { Group, Sort, Task } from '@/types'
+import type { Sort, Task } from '@/types'
 import dayjs from 'dayjs'
 import { computed, ref } from 'vue'
 
 const props = defineProps<{
   todos: Task[]
-  groups: Group[]
   id: string
 }>()
 
@@ -139,5 +141,10 @@ function setFavorite(id: string) {
   display: flex;
   justify-content: end;
   align-items: center;
+}
+
+.back-container {
+  display: flex;
+  justify-content: end;
 }
 </style>

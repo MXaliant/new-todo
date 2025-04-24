@@ -1,24 +1,30 @@
 <template>
-  <label>
-    <input
-      v-model="title"
-      name="newTask"
-      :aria-invalid="!!error || undefined"
-      @input="error = ''"
-      placeholder="Title"
-    />
-    <input
-      v-model="taskDesc"
-      name="taskDesc"
-      :aria-invalid="!!error || undefined"
-      @input="error = ''"
-      placeholder="Description"
-    />
-    <small v-if="error" id="invalid-helper">{{ error }}</small>
-  </label>
-  <div class="button-container">
-    <button @click="formSubmitted">Save</button>
-  </div>
+  <main>
+    <div class="button-container">
+      <button @click="$router.back()">Back</button>
+    </div>
+    <label>
+      Edit Task
+      <input
+        v-model="title"
+        name="newTask"
+        :aria-invalid="!!error || undefined"
+        @input="error = ''"
+        placeholder="Title"
+      />
+      <input
+        v-model="taskDesc"
+        name="taskDesc"
+        :aria-invalid="!!error || undefined"
+        @input="error = ''"
+        placeholder="Description"
+      />
+      <small v-if="error" id="invalid-helper">{{ error }}</small>
+    </label>
+    <div class="button-container">
+      <button @click="formSubmitted">Save</button>
+    </div>
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -59,4 +65,13 @@ function formSubmitted() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+label {
+  margin-top: 1rem;
+}
+
+.button-container {
+  display: flex;
+  justify-content: end;
+}
+</style>
