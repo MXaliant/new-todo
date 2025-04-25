@@ -60,9 +60,7 @@ function formSubmitted() {
 
   if (title.value.trim() && taskDesc.value.trim()) {
     const editedTask = { ...task, title: title.value, description: taskDesc.value }
-    const editedTasks = tasks.map((t) =>
-      t.id === editedTask.id ? { ...tasks, ...editedTask } : { ...task },
-    )
+    const editedTasks = tasks.map((t) => (t.id === editedTask.id ? { ...editedTask } : { ...t }))
     emits('updateTodos', editedTasks, props.groupId)
     alert('Task updated successfully!')
   } else {
