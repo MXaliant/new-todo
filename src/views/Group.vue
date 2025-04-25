@@ -5,7 +5,7 @@
     </div>
     <TaskForm @add-task="addTask" />
     <h5 v-if="!groupedTasks.length">Add a task to get started.</h5>
-    <h5 v-else>{{ totalDone }} / {{ todos.length }} tasks completed</h5>
+    <h5 v-else>{{ totalDone }} / {{ groupedTasks.length }} tasks completed</h5>
     <div v-if="groupedTasks.length" class="button-container">
       <SortButton :current-sort="sort" sort="createdAt" @set-sort="setSort" />
       <SortButton :current-sort="sort" sort="title" @set-sort="setSort" />
@@ -34,21 +34,22 @@
 import SortButton from '@/components/SortButton.vue'
 import TaskForm from '@/components/TaskForm.vue'
 import TaskList from '@/components/TaskList.vue'
-import type { Sort, Task } from '@/types'
+import type { Group, Sort, Task } from '@/types'
 import dayjs from 'dayjs'
 import { computed, ref } from 'vue'
 
 const props = defineProps<{
-  todos: Task[]
+  groups: Group[]
   id: string
 }>()
 
 const emits = defineEmits<{
-  updateTodos: [newTasks: Task[]]
+  updateTodos: [newTasks: Task[], groupId: string]
 }>()
 
+const group = computed(() => props.groups.find((g) => (g.id = props.id)))
 const groupedTasks = computed(() => {
-  return props.todos.filter((t) => t.groupId === props.id)
+  return group.value ? group.value.tasks : []
 })
 const sort = ref<Sort>('createdAt')
 const isShowCompleted = ref(false)
@@ -93,7 +94,7 @@ const filteredTasks = computed(() => {
 })
 
 function addTask(newTask: string, taskDesc: string) {
-  const newVal = props.todos.concat({
+  const newVal = groupedTasks.value.concat({
     id: crypto.randomUUID(),
     title: newTask,
     description: taskDesc,
@@ -103,21 +104,21 @@ function addTask(newTask: string, taskDesc: string) {
     createdAt: dayjs().valueOf(),
   })
 
-  emits('updateTodos', newVal)
+  emits('updateTodos', newVal, props.id)
 }
 
 function toggleDone(id: string) {
-  const res = props.todos.map((t) =>
+  const res = groupedTasks.value.map((t) =>
     t.id === id
       ? { ...t, done: !t.done, priority: false, completedAt: dayjs().valueOf() }
       : { ...t },
   )
-  emits('updateTodos', res)
+  emits('updateTodos', res, props.id)
 }
 
 function removeTask(id: string) {
-  const res = props.todos.filter((t) => t.id !== id)
-  emits('updateTodos', res)
+  const res = groupedTasks.value.filter((t) => t.id !== id)
+  emits('updateTodos', res, props.id)
 }
 
 function setSort(value: Sort) {
@@ -125,8 +126,10 @@ function setSort(value: Sort) {
 }
 
 function setFavorite(id: string) {
-  const res = props.todos.map((t) => (t.id === id ? { ...t, priority: !t.priority } : { ...t }))
-  emits('updateTodos', res)
+  const res = groupedTasks.value.map((t) =>
+    t.id === id ? { ...t, priority: !t.priority } : { ...t },
+  )
+  emits('updateTodos', res, props.id)
 }
 </script>
 

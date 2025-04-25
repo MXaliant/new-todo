@@ -18,7 +18,7 @@
         </div>
       </div>
       <div class="right-container">
-        <RouterLink :to="{ name: 'TaskEdit', params: { id: task.id } }">
+        <RouterLink :to="{ name: 'TaskEdit', params: { id: task.id, groupId: task.groupId } }">
           <button>Edit</button>
         </RouterLink>
         <button @click="emits('removeTask', task.id)" class="outline">Remove</button>

@@ -4,12 +4,10 @@ import GroupContainer from '@/components/GroupContainer.vue'
 import GroupForm from '@/components/GroupForm.vue'
 
 const props = defineProps<{
-  todos: Task[]
   groups: Group[]
 }>()
 
 const emits = defineEmits<{
-  updateGlobal: [newTasks: Task[], newGroups: Group[]]
   updateTodos: [list: Task[]]
   updateGroups: [newGroups: Group[]]
 }>()
@@ -18,6 +16,7 @@ function addGroup(newGroup: string) {
   const newGroups = props.groups.concat({
     id: crypto.randomUUID(),
     name: newGroup,
+    tasks: [],
   })
   emits('updateGroups', newGroups)
 }
@@ -29,11 +28,7 @@ function removeGroup(id: string) {
   switch (r) {
     case true: {
       const groupsRes = props.groups.filter((g) => g.id !== id)
-      let tasksRes: Task[] = []
-      if (props.todos.length) {
-        tasksRes = props.todos.filter((t) => t.groupId !== id)
-      }
-      emits('updateGlobal', tasksRes, groupsRes)
+      emits('updateGroups', groupsRes)
     }
     case false:
       return
@@ -50,7 +45,6 @@ function removeGroup(id: string) {
       <GroupContainer
         v-for="group in groups"
         :group="group"
-        :hasPrio="todos.some((t) => t.groupId === group.id && t.priority)"
         @remove-group="removeGroup"
         :key="group.id"
       />

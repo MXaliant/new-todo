@@ -28,20 +28,22 @@
 </template>
 
 <script setup lang="ts">
-import type { Task } from '@/types'
+import type { Group, Task } from '@/types'
 import { ref } from 'vue'
 
 const props = defineProps<{
   id: string
-  todos: Task[]
+  groups: Group[]
+  groupId: string
 }>()
 
 const emits = defineEmits<{
-  updateTask: [id: string, task: Task]
+  updateTodos: [newList: Task[], groupId: string]
 }>()
 
-const tasks = ref(props.todos)
-const task = tasks.value.find((task) => task.id === props.id)
+const group = props.groups.find((g) => (g.id = props.groupId))
+const tasks = group ? group.tasks : []
+const task = tasks.find((task) => task.id === props.id)
 
 const title = ref('')
 const taskDesc = ref('')
@@ -55,9 +57,13 @@ const error = ref('')
 
 function formSubmitted() {
   if (task === undefined) return
-  const editedTask = { ...task, title: title.value, description: taskDesc.value }
+
   if (title.value.trim() && taskDesc.value.trim()) {
-    emits('updateTask', props.id, editedTask)
+    const editedTask = { ...task, title: title.value, description: taskDesc.value }
+    const editedTasks = tasks.map((t) =>
+      t.id === editedTask.id ? { ...tasks, ...editedTask } : { ...task },
+    )
+    emits('updateTodos', editedTasks, props.groupId)
     alert('Task updated successfully!')
   } else {
     error.value = 'task can not be empty'

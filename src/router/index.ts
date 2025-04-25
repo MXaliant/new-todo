@@ -6,8 +6,8 @@ const Group = () => import('../views/Group.vue')
 
 const routes = [
   { path: '/', component: Home },
-  { path: '/todo/:id', component: TodoPage, name: 'TaskEdit', props: true },
-  { path: '/group/:id', component: Group, name: 'Group', props: true },
+  { path: '/:groupId/:id', component: TodoPage, name: 'TaskEdit', props: true },
+  { path: '/:id', component: Group, name: 'Group', props: true },
 ]
 
 const router = createRouter({

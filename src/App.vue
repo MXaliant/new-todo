@@ -1,35 +1,29 @@
 <template>
-  <RouterView
-    :todos="todos"
-    :groups="groups"
-    @update-global="updateGlobal"
-    @update-task="updateSingle"
-    @update-todos="updateTodos"
-    @update-groups="updateGroups"
-  />
+  <RouterView :groups="groups" @update-todos="updateTodos" @update-groups="updateGroups" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 import type { Group, Task } from './types'
 
-const todos = ref<Task[]>([])
+const GROUPS_KEY = 'my-groups'
+
 const groups = ref<Group[]>([])
 
-function updateGlobal(newTasks: Task[], newGroups: Group[]) {
-  ;(todos.value = newTasks), (groups.value = newGroups)
-}
+onMounted(() => {
+  const saved = localStorage.getItem(GROUPS_KEY)
+  if (saved) {
+    groups.value = JSON.parse(saved)
+  }
+})
 
-function updateSingle(id: string, task: Task) {
-  todos.value.map((t) => {
-    if (t.id === id) return { ...t, ...task }
-    else return { ...t }
-  })
-}
+watch(groups, (newGroups) => {
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(newGroups))
+})
 
-function updateTodos(newList: Task[]) {
-  todos.value = newList
+function updateTodos(newList: Task[], groupId: string) {
+  groups.value = groups.value.map((g) => (g.id === groupId ? { ...g, tasks: newList } : g))
 }
 
 function updateGroups(newGroups: Group[]) {
