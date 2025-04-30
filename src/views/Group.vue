@@ -31,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+import { firebaseUpdateTodos } from '@/assets/repository'
 import SortButton from '@/components/SortButton.vue'
 import TaskForm from '@/components/TaskForm.vue'
 import TaskList from '@/components/TaskList.vue'
@@ -94,7 +95,7 @@ const filteredTasks = computed(() => {
 })
 
 function addTask(newTask: string, taskDesc: string) {
-  const newVal = groupedTasks.value.concat({
+  const newVal = {
     id: crypto.randomUUID(),
     title: newTask,
     description: taskDesc,
@@ -102,9 +103,10 @@ function addTask(newTask: string, taskDesc: string) {
     priority: false,
     done: false,
     createdAt: dayjs().valueOf(),
-  })
+  }
+  const newList = groupedTasks.value.concat(newVal)
 
-  emits('updateTodos', newVal, props.id)
+  emits('updateTodos', newList, props.id)
 }
 
 function toggleDone(id: string) {

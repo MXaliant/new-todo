@@ -17,4 +17,9 @@ type Group = {
   tasks: Task[]
 }
 
-export type { Task, Group, Sort }
+type GroupUpsertForm = {
+  id: string
+  name: string
+}
+
+export type { Task, Group, Sort, GroupUpsertForm }

@@ -3,18 +3,31 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 import type { Group, Task } from './types'
+import { firebaseGetGroups, firebaseObserveGroups, firebaseUpdateTodos } from './assets/repository'
 
 const GROUPS_KEY = 'my-groups'
 
 const groups = ref<Group[]>([])
 
+let unsubGroups: () => void
+
 onMounted(() => {
-  const saved = localStorage.getItem(GROUPS_KEY)
-  if (saved) {
-    groups.value = JSON.parse(saved)
+  // const saved = localStorage.getItem(GROUPS_KEY)
+  // if (saved) {
+  //   groups.value = JSON.parse(saved)
+  // }
+  // groups.value = await firebaseGetGroups()
+  unsubGroups = firebaseObserveGroups((liveGroups) => {
+    groups.value = liveGroups
+  })
+})
+
+onUnmounted(() => {
+  if (unsubGroups) {
+    unsubGroups()
   }
 })
 
@@ -23,7 +36,8 @@ watch(groups, (newGroups) => {
 })
 
 function updateTodos(newList: Task[], groupId: string) {
-  groups.value = groups.value.map((g) => (g.id === groupId ? { ...g, tasks: newList } : g))
+  firebaseUpdateTodos(newList, groupId)
+  // groups.value = groups.value.map((g) => (g.id === groupId ? { ...g, tasks: newList } : g))
 }
 
 function updateGroups(newGroups: Group[]) {

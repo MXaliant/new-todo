@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { Group, Task, Sort } from '../types'
+import { firebaseDeleteGroup, firebaseUpsertGroup } from '@/assets/repository'
+import type { Group, Task, Sort, GroupUpsertForm } from '../types'
 import GroupContainer from '@/components/GroupContainer.vue'
 import GroupForm from '@/components/GroupForm.vue'
 
@@ -13,12 +14,16 @@ const emits = defineEmits<{
 }>()
 
 function addGroup(newGroup: string) {
-  const newGroups = props.groups.concat({
-    id: crypto.randomUUID(),
+  const newId = crypto.randomUUID()
+  const newVal: Group = {
+    id: newId,
     name: newGroup,
     tasks: [],
-  })
-  emits('updateGroups', newGroups)
+  }
+  const newGroups = props.groups.concat(newVal)
+
+  firebaseUpsertGroup(newVal)
+  // emits('updateGroups', newGroups)
 }
 
 function removeGroup(id: string) {
@@ -27,8 +32,9 @@ function removeGroup(id: string) {
   )
   switch (r) {
     case true: {
-      const groupsRes = props.groups.filter((g) => g.id !== id)
-      emits('updateGroups', groupsRes)
+      firebaseDeleteGroup(id)
+      // const groupsRes = props.groups.filter((g) => g.id !== id)
+      // emits('updateGroups', groupsRes)
     }
     case false:
       return

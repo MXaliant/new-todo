@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import { firebaseUpdateTodos } from '@/assets/repository'
 import type { Group, Task } from '@/types'
 import { ref } from 'vue'
 
@@ -61,6 +62,7 @@ function formSubmitted() {
   if (title.value.trim() && taskDesc.value.trim()) {
     const editedTask = { ...task, title: title.value, description: taskDesc.value }
     const editedTasks = tasks.map((t) => (t.id === editedTask.id ? { ...editedTask } : { ...t }))
+    firebaseUpdateTodos(editedTasks, props.groupId)
     emits('updateTodos', editedTasks, props.groupId)
     alert('Task updated successfully!')
   } else {
