@@ -18,27 +18,33 @@ async function firebaseUpdateTodos(todos: Task[], groupId: string) {
     await setDoc(groupRef, { tasks: todos }, { merge: true })
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
-    alert(`Error saving task: ${message}`)
+    alert(`Error saving/deleting task: ${message}`)
   }
 }
 
 async function firebaseGetGroups(): Promise<Group[]> {
-  const groupsCol = collection(firebaseDb, import.meta.env.VITE_FIRESTORE_GROUPS_COLLECTION_KEY)
-  const groupsSnapshot = await getDocs(groupsCol)
+  try {
+    const groupsCol = collection(firebaseDb, import.meta.env.VITE_FIRESTORE_GROUPS_COLLECTION_KEY)
+    const groupsSnapshot = await getDocs(groupsCol)
 
-  const groups: Group[] = groupsSnapshot.docs.map((doc) => {
-    const data = doc.data()
-    return {
-      id: doc.id,
-      name: data.name,
-      tasks: data.tasks,
-    }
-  })
+    const groups: Group[] = groupsSnapshot.docs.map((doc) => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        name: data.name,
+        tasks: data.tasks,
+      }
+    })
 
-  return groups
+    return groups
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    alert(`Error getting groups: ${message}`)
+    return []
+  }
 }
 
-export function firebaseObserveGroups(callbackfn: (groups: Group[]) => void) {
+function firebaseObserveGroups(callbackfn: (groups: Group[]) => void) {
   const groupsCol = collection(firebaseDb, import.meta.env.VITE_FIRESTORE_GROUPS_COLLECTION_KEY)
   return onSnapshot(
     query(
@@ -50,13 +56,29 @@ export function firebaseObserveGroups(callbackfn: (groups: Group[]) => void) {
         const result = snaps.docs.map((doc) => doc.data() as Group)
         callbackfn(result)
       },
+      error: (e) => {
+        const message = e instanceof Error ? e.message : String(e)
+        alert(`Error observing groups: ${message}`)
+        callbackfn([])
+      },
     },
   )
 }
 
 async function firebaseDeleteGroup(groupId: string): Promise<void> {
-  const groupRef = doc(firebaseDb, 'groups', groupId)
-  await deleteDoc(groupRef)
+  try {
+    const groupRef = doc(firebaseDb, 'groups', groupId)
+    await deleteDoc(groupRef)
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    alert(`Error deleting group(${groupId}): ${message}`)
+  }
 }
 
-export { firebaseUpsertGroup, firebaseUpdateTodos, firebaseGetGroups, firebaseDeleteGroup }
+export {
+  firebaseUpsertGroup,
+  firebaseUpdateTodos,
+  firebaseGetGroups,
+  firebaseDeleteGroup,
+  firebaseObserveGroups,
+}
